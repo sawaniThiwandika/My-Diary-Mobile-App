@@ -40,6 +40,7 @@ export default function Addnote() {
             }
         } else {
             Alert.alert("Error", "Please write a note before submitting.");
+
         }
     };
 

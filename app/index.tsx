@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, StyleSheet, ImageBackground, TouchableOpacity } from "react-native";
+import {View, Text, TextInput, Button, StyleSheet, ImageBackground, TouchableOpacity, Alert} from "react-native";
 import {useEffect, useState} from "react";
 import { useRouter } from "expo-router";
 import {User} from "./model/UserModel";
@@ -16,7 +16,12 @@ export default function Login() {
     const handleLogin = () => {
         if (email && password) {
             const user: User = { userName: email,password: password }
-            dispatch(login(user));
+            try {
+                dispatch(login(user));
+            }
+            catch(error) {
+                Alert.alert("InCorrect UserName or Password! Please try again.");
+            }
 
 
         } else {

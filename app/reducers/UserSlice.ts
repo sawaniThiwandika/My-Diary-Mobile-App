@@ -1,7 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { User } from "../model/UserModel";
 import { api } from "../../service/api-services";
-import AsyncStorage from '@react-native-async-storage/async-storage'; // Add AsyncStorage import
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {Alert} from "react-native"; // Add AsyncStorage import
 
 const initialState = {
     jwt_token: null,
@@ -32,7 +33,9 @@ export const login = createAsyncThunk(
             return response.data;
         } catch (err) {
             const errorMessage = err.response?.data?.message || "Login failed";
+            Alert.alert("InCorrect UserName or Password! Please try again.");
             return rejectWithValue(errorMessage);
+
         }
     }
 );
