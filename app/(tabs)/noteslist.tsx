@@ -1,124 +1,84 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import { LinearGradient } from 'expo-linear-gradient';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { useEffect } from "react";
+import { View, Text, FlatList, StyleSheet, ImageBackground } from "react-native";
+import { useSelector, useDispatch } from "react-redux";
+import { useRouter } from "expo-router";
+import { setNotes } from '../reducers/NoteSlice';
 
-export default function WriteNote() {
-    const [note, setNote] = useState('');
-    const [currentDateTime, setCurrentDateTime] = useState<string>('');
+export default function NotesList() {
+    const notes = useSelector((state) => state.notes.notes);
+    const dispatch = useDispatch();
 
-    // Function to update the current date and time
-    const updateDateTime = () => {
-        const now = new Date();
-        const formattedDate = now.toLocaleString(); // Formats the date and time
-        setCurrentDateTime(formattedDate);
-    };
-
-    useEffect(() => {
-        updateDateTime();
-    }, []); // Update only once when the component mounts
-
-    const addNote = async () => {
-        if (note) {
-            // Get the existing notes from AsyncStorage
-            const existingNotes = await AsyncStorage.getItem('notes');
-            const parsedNotes = existingNotes ? JSON.parse(existingNotes) : [];
-
-            // Create a new note object with the note and current timestamp
-            const newNote = { note, dateTime: currentDateTime };
-
-            // Add the new note to the list
-            const updatedNotes = [...parsedNotes, newNote];
-
-            // Save the updated list of notes to AsyncStorage
-            await AsyncStorage.setItem('notes', JSON.stringify(updatedNotes));
-
-            // Clear the note input field
-            setNote('');
-        } else {
-            alert('Please write a note');
-        }
-    };
+    useEffect(() => {}, [dispatch]);
 
     return (
-        <LinearGradient
-            colors={['#ffb6c1', '#ffffff']} // Pink to white gradient
-            style={styles.gradientBackground}
+        <ImageBackground
+            source={require("../../assets/SKY-1.jpg")}
+            style={styles.backgroundImage}
         >
             <View style={styles.container}>
-                {/* Display the current date and time */}
-                <Text style={styles.dateTime}>{currentDateTime}</Text>
+                <Text style={styles.header}>Your Notes</Text>
 
-                {/* Input Field for Notes */}
-                <TextInput
-                    placeholder="Write your note..."
-                    value={note}
-                    onChangeText={setNote}
-                    style={styles.input}
-                    placeholderTextColor="#b2b2b2"
-                    multiline
-                    numberOfLines={8} // Increased height of note input field
-                />
-
-                {/* Add Note Button with Icon */}
-                <TouchableOpacity style={styles.addButton} onPress={addNote}>
-                    <Ionicons name="add-circle" size={30} color="white" />
-                    <Text style={styles.addButtonText}>Add Note</Text>
-                </TouchableOpacity>
+                {notes.length === 0 ? (
+                    <Text style={styles.noNotes}>No notes available. Add some!</Text>
+                ) : (
+                    <FlatList
+                        data={notes}
+                        keyExtractor={(item, index) => index.toString()}
+                        renderItem={({ item }) => (
+                            <View style={styles.noteContainer}>
+                                <Text style={styles.dateTime}>{item.date} {item.time}</Text>
+                                <Text style={styles.noteText}>{item.content}</Text>
+                            </View>
+                        )}
+                    />
+                )}
             </View>
-        </LinearGradient>
+        </ImageBackground>
     );
 }
 
 const styles = StyleSheet.create({
-    gradientBackground: {
+    backgroundImage: {
         flex: 1,
-        justifyContent: 'flex-start',
-        alignItems: 'center',
+        resizeMode: "cover",
+        justifyContent: "center",
     },
     container: {
-        width: '90%',
-        alignItems: 'center',
-        justifyContent: 'flex-start',
-        paddingTop: 50,
+        flex: 1,
+        padding: 20,
+       // backgroundColor: "rgba(255, 245, 247, 0.35)",
+    },
+    header: {
+        fontSize: 24,
+        fontWeight: "bold",
+        marginBottom: 20,
+        textAlign: "center",
+        color: "#E5989B",
+    },
+    noNotes: {
+        fontSize: 18,
+        textAlign: "center",
+        color: "#888",
+        marginTop: 50,
+    },
+    noteContainer: {
+        backgroundColor: "rgba(170,96,200, 0.2)",
+        padding: 15,
+        marginBottom: 10,
+        borderRadius: 10,
+        shadowColor: "#000",
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
     },
     dateTime: {
+        fontSize: 14,
+        color: "#666",
+        fontStyle: "italic",
+        marginBottom: 5,
+    },
+    noteText: {
         fontSize: 16,
-        color: '#666',
-        marginBottom: 10,
-        fontStyle: 'italic',
-    },
-    input: {
-        width: '100%',
-        padding: 15,
-        borderRadius: 10,
-        backgroundColor: '#ffffff',
-        marginBottom: 20,
-        fontSize: 16,
-        color: '#333',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        height: 380, // Increased height for the note input space
-    },
-    addButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: '#ff66b2',
-        paddingVertical: 10,
-        paddingHorizontal: 20,
-        borderRadius: 25,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 3 },
-        shadowOpacity: 0.3,
-        shadowRadius: 8,
-    },
-    addButtonText: {
-        color: '#fff',
-        fontSize: 18,
-        marginLeft: 10,
-        fontWeight: '600',
+        color: "#3D3D3D",
     },
 });
